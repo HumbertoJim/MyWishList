@@ -24,21 +24,22 @@ class DataManager:
         try:
             index = 0
             if self.data.shape[0] > 0:
-                index = self.data.index.values[-1] + 1
+                index = max(self.data.index.values) + 1
             row = []
             for field in self._fields:
                 row.append(values[field])
             self.data.loc[index] = row
             self.save()
             return index
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
     def update(self, id, field, value):
         try:
             self.data.loc[id, field] = value
-        except:
-            pass
+            self.save()
+        except Exception as e:
+            print(e)
 
     def save(self):
         self.data.to_csv(self._path)
@@ -46,5 +47,6 @@ class DataManager:
     def delete(self, id):
         try:
             self.data = self.data.drop(id)
-        except:
-            pass
+            self.save()
+        except Exception as e:
+            print(e)

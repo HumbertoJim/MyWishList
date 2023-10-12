@@ -5,13 +5,12 @@ from flet_core.ref import Ref
 from flet_core.types import AnimationValue, ClipBehavior, OffsetValue, ResponsiveNumber, RotateValue, ScaleValue
 
 class Wish(ft.UserControl):
-    def __init__(self, id, title, achieved=False, status_change_method=None, delete_method=None, *args, **kwargs):
+    def __init__(self, id, title, achieved, app, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.id = id
         self.title = title
         self.achieved = achieved
-        self.wish_status_change = status_change_method
-        self.wish_delete = delete_method
+        self.app = app
 
     def build(self):
         self.wish = ft.Checkbox(value=self.achieved, label=self.title, on_change=self.status_changed)
@@ -51,6 +50,12 @@ class Wish(ft.UserControl):
                     icon_color=ft.colors.GREEN,
                     tooltip='Save',
                     on_click=self.save_clicked
+                ),
+                ft.IconButton(
+                    icon=ft.icons.CANCEL_OUTLINED,
+                    icon_color=ft.colors.RED,
+                    tooltip='Cancel',
+                    on_click=self.cancel_edit
                 )
             ]
         )
@@ -64,16 +69,16 @@ class Wish(ft.UserControl):
         self.update()
 
     def save_clicked(self, e):
-        self.wish.label = self.edit_wish.value
+        self.app.wish_title_change(self)
+
+    def cancel_edit(self, e):
         self.display_view.visible = True
         self.edit_view.visible = False
         self.update()
 
     def delete_clicked(self, e):
-        if self.wish_delete != None:
-            self.wish_delete(self)
+        self.app.wish_delete(self)
     
     def status_changed(self, e):
-        if self.wish_status_change != None:
-            self.achieved = self.wish.value
-            self.wish_status_change(self)
+        self.achieved = self.wish.value
+        self.app.wish_status_change(self)
